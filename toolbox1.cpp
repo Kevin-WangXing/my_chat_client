@@ -35,6 +35,7 @@ void toolbox1::init_toolBtn()
         toolBtn[i]->setAutoRaise(true);//设置toolBtn自动浮起界面风格
         toolBtn[i]->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);//设置toolBtn文字在图像旁边
         toolBtn[i]->setToolTip(tr("未知"));//设置toolBtn 鼠标提示为“未知”
+        child[i] = new Widget(toolBtn[i]->icon(), i, toolBtn[i]->text(), this);
     }
     QGroupBox *groupBox[8];
     QVBoxLayout *layout[8];
@@ -67,4 +68,14 @@ void toolbox1::init_username()
     {
         username[i] = tr("用户") + QString::number(i);
     }
+}
+
+bool toolbox1::eventFilter(QObject *watched, QEvent *event)
+{
+    if(event->type() == QEvent::MouseButtonPress)//如果是鼠标按键信号
+    {
+        int i = watched->objectName().toInt();
+        child[i]->showNormal();//将toolbtn下对应的child显示dao 屏幕
+    }
+    return QToolBox::eventFilter(watched, event);
 }

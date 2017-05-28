@@ -19,7 +19,7 @@ public:
 signals:
 
 public slots:
-    //bool eventFilter(QObject *watched, QEvent *event);
+    bool eventFilter(QObject *watched, QEvent *event);
 
 
 private:

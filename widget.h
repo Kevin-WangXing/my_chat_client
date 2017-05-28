@@ -2,6 +2,13 @@
 #define WIDGET_H
 
 #include <QtGui/QWidget>
+#include <QTextBrowser>
+#include <QFontComboBox>
+#include <QToolButton>
+#include <QLineEdit>
+#include <QPushButton>
+
+class toolbox1;
 
 
 class Widget : public QWidget
@@ -9,8 +16,29 @@ class Widget : public QWidget
     Q_OBJECT
 
 public:
-    Widget(QWidget *parent = 0);
+    Widget(const QIcon icon, int ID, QString name, toolbox1 *w, QWidget *parent = 0);
     ~Widget();
+    QPushButton *pushButton;
+
+private:
+    QTextBrowser *textBrowser;
+    QFontComboBox *fontComboBox;
+    QComboBox *comboBox;
+    QToolButton *toolButton_1;
+    QToolButton *toolButton_2;
+    QToolButton *toolButton_3;
+    QToolButton *toolButton_4;
+    QToolButton *toolButton;
+
+    QLineEdit *lineEdit;
+
+    int userID;
+    QString username;
+    QColor color;
+    toolbox1 *main_w;
+
+private:
+    void init_widget();
 };
 
 #endif // WIDGET_H
