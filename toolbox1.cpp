@@ -2,6 +2,7 @@
 #include <QTextCodec>
 
 #include "toolbox1.h"
+#include "logindlg.h"
 #include <QGroupBox>
 #include <QVBoxLayout>
 
@@ -16,6 +17,9 @@ toolbox1::toolbox1(QWidget *parent) :
     setWindowIcon(QPixmap(":/images/3.png"));//设置主窗口图标
     init_username();//--------------设置用户名------------------
     init_toolBtn();//--------------初始化主窗口控件------------------
+
+    loginDlg login;
+    login.exec();
 }
 
 
