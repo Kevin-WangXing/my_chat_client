@@ -1,10 +1,11 @@
-
 #include <QTextCodec>
 
 #include "toolbox1.h"
 #include "logindlg.h"
 #include <QGroupBox>
 #include <QVBoxLayout>
+#include <QMessageBox>
+#include <QHostAddress>
 
 toolbox1::toolbox1(QWidget *parent) :
     QToolBox(parent)
@@ -20,6 +21,35 @@ toolbox1::toolbox1(QWidget *parent) :
 
     loginDlg login;
     login.exec();
+
+    if(login.islogin)
+    {
+        if((login.userid < 0) || (login.userid > 255))
+        {
+            QMessageBox::information(this, tr("错误"), tr("无效用户ID"));
+        }else
+        {
+            setWindowTitle(username[login.userid]);
+            userid = login.userid;
+            passwd = login.passwd;
+            hostip = login.hostip;
+            hostport = login.hostport;
+
+            //根据登录对话框中用户输入的服务器IP和端口号链接到服务器
+            sockClient = new QTcpSocket(this);
+
+            connect(sockClient, SIGNAL(error(QAbstractSocket::SocketError)), this,
+                    SLOT(sock_Error(QAbstractSocket::SocketError)));
+            connect(sockClient, SIGNAL(readyRead()), this, SLOT(read_Msg()));
+            connect(sockClient, SIGNAL(connected()), this, SLOT(socket_connected()));
+
+            QHostAddress hostAddr(hostip);
+            sockClient->connectToHost(hostAddr, hostport);
+        }
+    }else
+    {
+        exit(0);
+    }
 }
 
 
@@ -82,4 +112,45 @@ bool toolbox1::eventFilter(QObject *watched, QEvent *event)
         child[i]->showNormal();//将toolbtn下对应的child显示dao 屏幕
     }
     return QToolBox::eventFilter(watched, event);
+}
+
+
+
+void toolbox1::sock_Error(QAbstractSocket::SocketError sockErr)
+{
+    switch(sockErr)
+    {
+    case QAbstractSocket::RemoteHostClosedError://如果服务器正常关闭了socket，就直接break;
+        break;
+    default:
+        QMessageBox::information(this, tr("错误"), sockClient->errorString());
+    }
+}
+
+void toolbox1::read_Msg()
+{
+}
+
+void toolbox1::socket_connected()
+{
+    login_Msg();
+}
+
+void toolbox1::login_Msg()
+{
+    const char *pw = passwd.toStdString().data();
+    if(sockClient->isOpen())//判断socket是否已经链接到远程服务端
+    {
+        if(sockClient->state() == QAbstractSocket::ConnectedState)
+        {
+            struct msg_t msg;
+            memset(&msg, 0, sizeof(msg));
+            msg.head[0] = 1;//设置消息为登录消息
+            msg.head[1] = userid;
+            msg.head[2] = 0;
+            msg.head[3] = 0;
+            strncpy(msg.body, pw, strlen(pw));
+            sockClient->write((const char *)&msg, sizeof(msg.head) + strlen(msg.body));
+        }
+    }
 }
