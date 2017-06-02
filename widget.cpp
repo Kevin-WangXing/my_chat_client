@@ -1,6 +1,11 @@
 #include "widget.h"
 #include <QTextCodec>
 #include <QHBoxLayout>
+#include <QDateTime>
+#include <QScrollBar>
+#include <QMessageBox>
+#include "toolbox1.h"
+#include <QColorDialog>
 
 Widget::Widget(const QIcon icon, int ID, QString name, toolbox1 *w, QWidget *parent)
     : QWidget(parent)
@@ -127,4 +132,131 @@ void Widget::init_widget()
     textBrowser->setFontPointSize(comboBox->currentText().toDouble());//设置textBrowser的默认字号
     lineEdit->setFocus();
 
+    connect(fontComboBox, SIGNAL(currentFontChanged(const QFont &)), this, SLOT(on_fontComboBox_currentFontChanged(const QFont &)));
+    connect(comboBox, SIGNAL(currentIndexChanged(const QString &)), this, SLOT(on_comboBox_currentIndexChanged(const QString &)));
+    connect(toolButton_1, SIGNAL(clicked(bool)), this, SLOT(on_toolButton_1_clicked(bool)));
+    connect(toolButton_2, SIGNAL(clicked(bool)), this, SLOT(on_toolButton_2_clicked(bool)));
+    connect(toolButton_3, SIGNAL(clicked(bool)), this, SLOT(on_toolButton_3_clicked(bool)));
+    connect(toolButton_4, SIGNAL(clicked()), this, SLOT(on_toolButton_4_clicked()));
+    connect(toolButton, SIGNAL(clicked()), this, SLOT(on_toolButton_clicked()));
+    connect(lineEdit, SIGNAL(returnPressed()), this, SLOT(on_lineEdit_returnPressed()));
+    connect(pushButton, SIGNAL(clicked()), this, SLOT(on_pushButton_clicked()));
+
+
+}
+
+//向textBrowser添加消息
+void Widget::add_msg(QString delivername, QString msg)
+{
+    //得到当前的时间，并把时间格式转化为“"形式的字符串
+    QString sTime = QDateTime::currentDateTime().toString("yyy-MM-dd hh:mm:ss");
+    textBrowser->append("[" + delivername + "]" + sTime);
+    textBrowser->append(msg);
+
+    //当消息textbrower中消息过多出现滚动条，自动滚到最下方
+    textBrowser->verticalScrollBar()->setValue(textBrowser->verticalScrollBar()->maximum());
+}
+
+void Widget::on_pushButton_clicked()
+{
+    if(lineEdit->text().isEmpty())//如果lineEdit控件内容为空，提示用户不能发送空消息
+    {
+        QMessageBox::information(this, tr("注意"), tr("不能发送空消息"));
+    }else
+    {
+        add_msg(tr("我的消息"), lineEdit->text());//将要发送的消息加入textBro控件中
+        main_w->send_Msg(userID, lineEdit->text().toStdString().data());
+        lineEdit->clear();
+    }
+    lineEdit->setFocus();
+}
+
+void Widget::on_fontComboBox_currentFontChanged(const QFont &f)//修改textBrowser字体
+{
+    textBrowser->setCurrentFont(f);
+    textBrowser->setFontPointSize(comboBox->currentText().toDouble());
+
+    if(toolButton_1->isChecked())
+    {
+        textBrowser->setFontWeight(QFont::Bold);
+    }
+    else
+    {
+        textBrowser->setFontWeight(QFont::Normal);
+    }
+
+    if(toolButton_2->isChecked())
+    {
+        textBrowser->setFontItalic(true);
+    }
+    else
+    {
+        textBrowser->setFontItalic(false);
+    }
+
+    if(toolButton_3->isChecked())
+    {
+        textBrowser->setFontUnderline(true);
+    }
+    else
+    {
+        textBrowser->setFontUnderline(false);
+    }
+
+    textBrowser->setTextColor(color);
+    lineEdit->setFocus();
+
+}
+
+void Widget::on_comboBox_currentIndexChanged(const QString &arg1)//修改textBrowser字号
+{
+    textBrowser->setFontPointSize(arg1.toDouble());
+    lineEdit->setFocus();
+}
+
+void Widget::on_toolButton_1_clicked(bool checked)//修改textBrowser字体是否加粗
+{
+    if(checked)
+    {
+        textBrowser->setFontWeight(QFont::Bold);
+    }
+    else
+    {
+        textBrowser->setFontWeight(QFont::Normal);
+    }
+    lineEdit->setFocus();
+}
+
+void Widget::on_toolButton_2_clicked(bool checked)//修改textBrowser字体是否斜体
+{
+    textBrowser->setFontItalic(checked);
+    lineEdit->setFocus();
+}
+
+void Widget::on_toolButton_3_clicked(bool checked)//修改textBrowser字体是否下划线
+{
+    textBrowser->setFontUnderline(checked);
+    lineEdit->setFocus();
+}
+
+void Widget::on_toolButton_4_clicked()//修改textBrowser字体颜色
+{
+    color = QColorDialog::getColor(color,this);
+    if(color.isValid())
+    {
+        textBrowser->setTextColor(color);
+        lineEdit->setFocus();
+    }
+}
+
+void Widget::on_toolButton_clicked()
+{
+    main_w->hide();
+    main_w->showNormal();
+}
+
+void Widget::on_lineEdit_returnPressed()
+{
+    if (pushButton->isEnabled())//如果pushButton没有变灰，那么就可以调用on_pushButton_clicked()函数
+        on_pushButton_clicked();
 }

@@ -1,6 +1,7 @@
 #include "logindlg.h"
 #include <QGridLayout>
 #include <QMessageBox>
+#include <QDebug>
 
 loginDlg::loginDlg(QWidget *parent) :
     QDialog(parent)
@@ -12,7 +13,7 @@ loginDlg::loginDlg(QWidget *parent) :
     lable1 = new QLabel;
     lable1->setText(tr("ÃÜÂë"));
     lineEditPasswd = new QLineEdit;
-    lineEditPasswd->setEchoMode(QLineEdit::Password);//ÉèÖÃÎªÃÜÂë¿ò
+    //lineEditPasswd->setEchoMode(QLineEdit::Password);//ÉèÖÃÎªÃÜÂë¿ò
 
     lable2 = new QLabel;
     lable2->setText(tr("·þÎñÆ÷IP"));
@@ -92,6 +93,7 @@ void loginDlg::loginBtnOnclick()
             passwd = lineEditPasswd->text();
             hostip = lineEditHostIP->text();
             hostport = lineEditHostport->text().toInt();
+            qDebug() << passwd << endl;
             close();
         }
     }

@@ -7,6 +7,7 @@
  #include <QTcpSocket>
 
 #include "widget.h"
+#include <QCloseEvent>
 
 #define CLIENTCOUNT 256
 #define MSGBODYBUF 1024
@@ -24,6 +25,7 @@ class toolbox1 : public QToolBox
     Q_OBJECT
 public:
     explicit toolbox1(QWidget *parent = 0);
+    void send_Msg(int d_userid, const char *msgBody);
 
 signals:
 
@@ -45,6 +47,11 @@ private:
 
     QTcpSocket *sockClient;
     void login_Msg();
+    void recv_send_Msg(int o_userid, const char *msgBody);
+    void userStatus_Msg(const char *msgBody);
+    void system_Msg(int msgcode);
+
+    void closeEvent(QCloseEvent *event);
 
 private slots:
     void sock_Error(QAbstractSocket::SocketError sockErr);//socket出错的时候触发的槽函数
